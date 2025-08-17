@@ -2,9 +2,9 @@
 
 namespace Mgcodeur\LaravelTranslationLoader;
 
+use Mgcodeur\LaravelTranslationLoader\Commands\LaravelTranslationLoaderCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Mgcodeur\LaravelTranslationLoader\Commands\LaravelTranslationLoaderCommand;
 
 class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider
 {

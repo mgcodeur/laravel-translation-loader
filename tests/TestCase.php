@@ -3,8 +3,8 @@
 namespace Mgcodeur\LaravelTranslationLoader\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Mgcodeur\LaravelTranslationLoader\LaravelTranslationLoaderServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
