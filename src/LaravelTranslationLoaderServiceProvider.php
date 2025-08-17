@@ -19,7 +19,10 @@ class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider
             ->name('laravel-translation-loader')
             ->hasConfigFile()
             ->hasViews()
-            ->hasMigration('create_laravel_translation_loader_table')
+            ->hasMigrations([
+                'create_languages_table',
+                'create_translations_table'
+            ])
             ->hasCommand(LaravelTranslationLoaderCommand::class);
     }
 }
