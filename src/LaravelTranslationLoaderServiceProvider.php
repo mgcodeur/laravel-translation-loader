@@ -2,27 +2,51 @@
 
 namespace Mgcodeur\LaravelTranslationLoader;
 
-use Mgcodeur\LaravelTranslationLoader\Commands\LaravelTranslationLoaderCommand;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Mgcodeur\LaravelTranslationLoader\Translations\DatabaseTranslationLoader;
 
-class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider
+class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider implements DeferrableProvider
 {
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package
             ->name('laravel-translation-loader')
             ->hasConfigFile()
-            ->hasViews()
             ->hasMigrations([
                 'create_languages_table',
                 'create_translations_table',
-            ])
-            ->hasCommand(LaravelTranslationLoaderCommand::class);
+            ]);
+
+        $this->registerLoader();
+        $this->registerTranslator();
+    }
+
+    protected function registerLoader(): void
+    {
+        $this->app->singleton('translation.loader', function ($app) {
+            return new DatabaseTranslationLoader(
+                $app['files'],
+                $app['path.lang']
+            );
+        });
+    }
+
+
+    protected function registerTranslator(): void
+    {
+        $this->app->singleton('translator', function ($app) {
+            $loader = $app['translation.loader'];
+            $translator = new \Illuminate\Translation\Translator($loader, $app->getLocale());
+            $translator->setFallback($app->getFallbackLocale());
+            return $translator;
+        });
+    }
+
+
+    public function provides(): array
+    {
+        return ['translator', 'translation.loader'];
     }
 }
