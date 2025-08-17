@@ -13,6 +13,7 @@ use Mgcodeur\LaravelTranslationLoader\Models\Language;
 final class DatabaseTranslationLoader implements Loader
 {
     private FileLoader $fileLoader;
+
     private const CACHE_PREFIX = 'laravel_translation_loader_language_';
 
     public function __construct(Filesystem $filesystem, string $path)
@@ -29,7 +30,7 @@ final class DatabaseTranslationLoader implements Loader
         $translations = $this->getTranslationsFromDb($locale);
         $fallbackLocale = config('app.fallback_locale');
 
-        if (!$fallbackLocale) {
+        if (! $fallbackLocale) {
             return $translations;
         }
 
@@ -42,16 +43,17 @@ final class DatabaseTranslationLoader implements Loader
             ) {
                 $translations = $this->fillMissingTranslations($translations, $fallbackSource);
             }
+
             return $translations;
         }
 
         $hasEmptyTranslations = array_filter(
             $translations,
-            fn($translationValue) => self::isEmptyValue($translationValue)
+            fn ($translationValue) => self::isEmptyValue($translationValue)
         );
 
         if ($hasEmptyTranslations) {
-            //TODO: ne charger que ce que l'on a vraiment besoin
+            // TODO: ne charger que ce que l'on a vraiment besoin
             $translations = $this->fillMissingTranslations($translations, $this->getTranslationsFromDb($fallbackLocale));
             $translations = $this->fillMissingTranslations($translations, $this->fileLoader->load($fallbackLocale, '*', $namespace));
         }
@@ -76,12 +78,12 @@ final class DatabaseTranslationLoader implements Loader
 
     private function getTranslationsFromDb(string $locale): array
     {
-        return Cache::rememberForever(self::CACHE_PREFIX . $locale, function () use ($locale) {
+        return Cache::rememberForever(self::CACHE_PREFIX.$locale, function () use ($locale) {
             $language = Language::where('code', $locale)
                 ->where('is_enabled', true)
                 ->first();
 
-            if (!$language) {
+            if (! $language) {
                 return [];
             }
 
@@ -95,7 +97,7 @@ final class DatabaseTranslationLoader implements Loader
     {
         $validFallbackTranslations = array_filter(
             $fallbackTranslations,
-            fn($translationValue) => self::isFilledValue($translationValue)
+            fn ($translationValue) => self::isFilledValue($translationValue)
         );
 
         if (empty($validFallbackTranslations)) {
@@ -104,7 +106,7 @@ final class DatabaseTranslationLoader implements Loader
 
         $emptyKeys = array_keys(array_filter(
             $currentTranslations,
-            fn($translationValue) => self::isEmptyValue($translationValue)
+            fn ($translationValue) => self::isEmptyValue($translationValue)
         ));
 
         $missingKeys = array_diff(
@@ -135,6 +137,6 @@ final class DatabaseTranslationLoader implements Loader
 
     private static function isFilledValue($translationValue): bool
     {
-        return !self::isEmptyValue($translationValue);
+        return ! self::isEmptyValue($translationValue);
     }
 }

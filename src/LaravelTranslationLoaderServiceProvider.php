@@ -3,9 +3,9 @@
 namespace Mgcodeur\LaravelTranslationLoader;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
+use Mgcodeur\LaravelTranslationLoader\Translations\DatabaseTranslationLoader;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Mgcodeur\LaravelTranslationLoader\Translations\DatabaseTranslationLoader;
 
 class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider implements DeferrableProvider
 {
@@ -33,17 +33,16 @@ class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider imp
         });
     }
 
-
     protected function registerTranslator(): void
     {
         $this->app->singleton('translator', function ($app) {
             $loader = $app['translation.loader'];
             $translator = new \Illuminate\Translation\Translator($loader, $app->getLocale());
             $translator->setFallback($app->getFallbackLocale());
+
             return $translator;
         });
     }
-
 
     public function provides(): array
     {

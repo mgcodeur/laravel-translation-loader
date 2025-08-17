@@ -11,11 +11,11 @@ class Language extends Model
         'name',
         'code',
         'flag',
-        'is_enabled'
+        'is_enabled',
     ];
 
     protected $cast = [
-        'is_enabled' => 'boolean'
+        'is_enabled' => 'boolean',
     ];
 
     public function translations(): HasMany

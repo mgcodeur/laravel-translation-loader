@@ -10,7 +10,7 @@ class Translation extends Model
     protected $fillable = [
         'key',
         'value',
-        'language_id'
+        'language_id',
     ];
 
     public function language(): BelongsTo
