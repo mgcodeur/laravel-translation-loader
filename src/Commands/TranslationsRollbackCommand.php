@@ -6,17 +6,19 @@ namespace Mgcodeur\LaravelTranslationLoader\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Mgcodeur\LaravelTranslationLoader\Repositories\TranslationMigrationRepository;
 
 final class TranslationsRollbackCommand extends Command
 {
-    protected $signature = 'translation:rollback {--steps=1} {--path=}';
+    protected $signature = 'translation:rollback 
+        {--steps= : Number of files to rollback} 
+        {--path=}';
 
-    protected $description = 'Rollback translation migration files (call down()) in reverse order';
+    protected $description = 'Rollback translation migrations using last batch by default, or steps when provided.';
 
-    public function handle(Filesystem $files): int
+    public function handle(Filesystem $files, TranslationMigrationRepository $repo): int
     {
         $path = $this->option('path') ?: base_path('database/translations');
-        $steps = max(1, (int) $this->option('steps'));
 
         if (! $files->isDirectory($path)) {
             $this->info('No translation directory found.');
@@ -24,19 +26,47 @@ final class TranslationsRollbackCommand extends Command
             return self::SUCCESS;
         }
 
-        $filesList = collect($files->files($path))
-            ->filter(fn ($f) => str_ends_with($f->getFilename(), '.php'))
-            ->sortByDesc(fn ($f) => $f->getFilename())
-            ->take($steps)
-            ->values();
+        $stepsOpt = $this->option('steps');
 
-        foreach ($filesList as $file) {
-            /** @var \SplFileInfo $file */
-            $migration = require $file->getRealPath();
-            if (is_object($migration) && method_exists($migration, 'down')) {
-                $this->line('Rolling back: '.$file->getFilename());
-                $migration->down();
+        $targets = [];
+
+        if ($stepsOpt !== null && trim((string) $stepsOpt) !== '') {
+            $n = max(1, (int) $stepsOpt);
+            $targets = $repo->getLastN($n);
+            if ($targets === []) {
+                $this->info('Nothing to rollback (no entries for given steps).');
+
+                return self::SUCCESS;
             }
+        } else {
+            $lastBatch = $repo->getLastBatch();
+            if ($lastBatch === []) {
+                $this->info('Nothing to rollback (no batch found).');
+
+                return self::SUCCESS;
+            }
+            $targets = array_map(fn ($batch) => $batch['filename'], $lastBatch);
+        }
+
+        foreach ($targets as $filename) {
+            $filePath = $path.DIRECTORY_SEPARATOR.$filename;
+            $this->line('Rolling back: '.$filename);
+
+            if (! file_exists($filePath)) {
+                $this->warn("File missing. Removing log only: {$filename}");
+                $repo->deleteLog($filename);
+
+                continue;
+            }
+
+            $migration = require $filePath;
+            if (is_object($migration) && method_exists($migration, 'down')) {
+                $migration->down();
+            } else {
+                $this->warn("Skipped (no down()): {$filename}");
+            }
+
+            $repo->deleteLog($filename);
         }
 
         $this->info('Translations rollback complete.');
