@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Mgcodeur\LaravelTranslationLoader\Models\Language;
 
 return new class extends Migration
 {
@@ -16,6 +17,18 @@ return new class extends Migration
             $table->boolean('is_enabled')->default(false);
             $table->timestamps();
         });
+
+        $languages = json_decode(
+            file_get_contents(base_path('vendor/mgcodeur/laravel-translation-loader/database/seeds/languages.json')),
+            true
+        );
+
+        Language::query()->insert(
+            array_map(fn($language) => array_merge($language, [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]), $languages)
+        );
     }
 
     public function down()

@@ -11,6 +11,18 @@ This package lets you manage Laravel translations from the database using simple
 
 ```bash
 composer require mgcodeur/laravel-translation-loader
+```
+
+Install the package:
+
+```bash
+php artisan laravel-translation-loader:install
+```
+
+This will publish the configuration and migration files.
+Run the migrations:
+
+```bash
 php artisan migrate
 ```
 

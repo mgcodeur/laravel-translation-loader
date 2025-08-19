@@ -1,0 +1,447 @@
+[
+    {
+        "code": "af",
+        "name": "Afrikaans",
+        "is_enabled": true
+    },
+    {
+        "code": "am",
+        "name": "Amharic",
+        "is_enabled": true
+    },
+    {
+        "code": "ar",
+        "name": "Arabic",
+        "is_enabled": true
+    },
+    {
+        "code": "az",
+        "name": "Azerbaijani",
+        "is_enabled": true
+    },
+    {
+        "code": "be",
+        "name": "Belarusian",
+        "is_enabled": true
+    },
+    {
+        "code": "bg",
+        "name": "Bulgarian",
+        "is_enabled": true
+    },
+    {
+        "code": "bn",
+        "name": "Bengali",
+        "is_enabled": true
+    },
+    {
+        "code": "bs",
+        "name": "Bosnian",
+        "is_enabled": true
+    },
+    {
+        "code": "ca",
+        "name": "Catalan",
+        "is_enabled": true
+    },
+    {
+        "code": "cs",
+        "name": "Czech",
+        "is_enabled": true
+    },
+    {
+        "code": "cy",
+        "name": "Welsh",
+        "is_enabled": true
+    },
+    {
+        "code": "da",
+        "name": "Danish",
+        "is_enabled": true
+    },
+    {
+        "code": "de",
+        "name": "German",
+        "is_enabled": true
+    },
+    {
+        "code": "el",
+        "name": "Greek",
+        "is_enabled": true
+    },
+    {
+        "code": "en",
+        "name": "English",
+        "is_enabled": true
+    },
+    {
+        "code": "eo",
+        "name": "Esperanto",
+        "is_enabled": true
+    },
+    {
+        "code": "es",
+        "name": "Spanish",
+        "is_enabled": true
+    },
+    {
+        "code": "et",
+        "name": "Estonian",
+        "is_enabled": true
+    },
+    {
+        "code": "eu",
+        "name": "Basque",
+        "is_enabled": true
+    },
+    {
+        "code": "fa",
+        "name": "Persian",
+        "is_enabled": true
+    },
+    {
+        "code": "fi",
+        "name": "Finnish",
+        "is_enabled": true
+    },
+    {
+        "code": "fr",
+        "name": "French",
+        "is_enabled": true
+    },
+    {
+        "code": "ga",
+        "name": "Irish",
+        "is_enabled": true
+    },
+    {
+        "code": "gl",
+        "name": "Galician",
+        "is_enabled": true
+    },
+    {
+        "code": "gu",
+        "name": "Gujarati",
+        "is_enabled": true
+    },
+    {
+        "code": "he",
+        "name": "Hebrew",
+        "is_enabled": true
+    },
+    {
+        "code": "hi",
+        "name": "Hindi",
+        "is_enabled": true
+    },
+    {
+        "code": "hr",
+        "name": "Croatian",
+        "is_enabled": true
+    },
+    {
+        "code": "ht",
+        "name": "Haitian Creole",
+        "is_enabled": true
+    },
+    {
+        "code": "hu",
+        "name": "Hungarian",
+        "is_enabled": true
+    },
+    {
+        "code": "hy",
+        "name": "Armenian",
+        "is_enabled": true
+    },
+    {
+        "code": "id",
+        "name": "Indonesian",
+        "is_enabled": true
+    },
+    {
+        "code": "is",
+        "name": "Icelandic",
+        "is_enabled": true
+    },
+    {
+        "code": "it",
+        "name": "Italian",
+        "is_enabled": true
+    },
+    {
+        "code": "ja",
+        "name": "Japanese",
+        "is_enabled": true
+    },
+    {
+        "code": "jv",
+        "name": "Javanese",
+        "is_enabled": true
+    },
+    {
+        "code": "ka",
+        "name": "Georgian",
+        "is_enabled": true
+    },
+    {
+        "code": "kk",
+        "name": "Kazakh",
+        "is_enabled": true
+    },
+    {
+        "code": "km",
+        "name": "Khmer",
+        "is_enabled": true
+    },
+    {
+        "code": "kn",
+        "name": "Kannada",
+        "is_enabled": true
+    },
+    {
+        "code": "ko",
+        "name": "Korean",
+        "is_enabled": true
+    },
+    {
+        "code": "ku",
+        "name": "Kurdish",
+        "is_enabled": true
+    },
+    {
+        "code": "ky",
+        "name": "Kyrgyz",
+        "is_enabled": true
+    },
+    {
+        "code": "la",
+        "name": "Latin",
+        "is_enabled": true
+    },
+    {
+        "code": "lb",
+        "name": "Luxembourgish",
+        "is_enabled": true
+    },
+    {
+        "code": "lo",
+        "name": "Lao",
+        "is_enabled": true
+    },
+    {
+        "code": "lt",
+        "name": "Lithuanian",
+        "is_enabled": true
+    },
+    {
+        "code": "lv",
+        "name": "Latvian",
+        "is_enabled": true
+    },
+    {
+        "code": "mg",
+        "name": "Malagasy",
+        "is_enabled": true
+    },
+    {
+        "code": "mk",
+        "name": "Macedonian",
+        "is_enabled": true
+    },
+    {
+        "code": "ml",
+        "name": "Malayalam",
+        "is_enabled": true
+    },
+    {
+        "code": "mn",
+        "name": "Mongolian",
+        "is_enabled": true
+    },
+    {
+        "code": "mr",
+        "name": "Marathi",
+        "is_enabled": true
+    },
+    {
+        "code": "ms",
+        "name": "Malay",
+        "is_enabled": true
+    },
+    {
+        "code": "mt",
+        "name": "Maltese",
+        "is_enabled": true
+    },
+    {
+        "code": "my",
+        "name": "Burmese",
+        "is_enabled": true
+    },
+    {
+        "code": "ne",
+        "name": "Nepali",
+        "is_enabled": true
+    },
+    {
+        "code": "nl",
+        "name": "Dutch",
+        "is_enabled": true
+    },
+    {
+        "code": "no",
+        "name": "Norwegian",
+        "is_enabled": true
+    },
+    {
+        "code": "pa",
+        "name": "Punjabi",
+        "is_enabled": true
+    },
+    {
+        "code": "pl",
+        "name": "Polish",
+        "is_enabled": true
+    },
+    {
+        "code": "ps",
+        "name": "Pashto",
+        "is_enabled": true
+    },
+    {
+        "code": "pt",
+        "name": "Portuguese",
+        "is_enabled": true
+    },
+    {
+        "code": "ro",
+        "name": "Romanian",
+        "is_enabled": true
+    },
+    {
+        "code": "ru",
+        "name": "Russian",
+        "is_enabled": true
+    },
+    {
+        "code": "sd",
+        "name": "Sindhi",
+        "is_enabled": true
+    },
+    {
+        "code": "si",
+        "name": "Sinhala",
+        "is_enabled": true
+    },
+    {
+        "code": "sk",
+        "name": "Slovak",
+        "is_enabled": true
+    },
+    {
+        "code": "sl",
+        "name": "Slovenian",
+        "is_enabled": true
+    },
+    {
+        "code": "so",
+        "name": "Somali",
+        "is_enabled": true
+    },
+    {
+        "code": "sq",
+        "name": "Albanian",
+        "is_enabled": true
+    },
+    {
+        "code": "sr",
+        "name": "Serbian",
+        "is_enabled": true
+    },
+    {
+        "code": "su",
+        "name": "Sundanese",
+        "is_enabled": true
+    },
+    {
+        "code": "sv",
+        "name": "Swedish",
+        "is_enabled": true
+    },
+    {
+        "code": "sw",
+        "name": "Swahili",
+        "is_enabled": true
+    },
+    {
+        "code": "ta",
+        "name": "Tamil",
+        "is_enabled": true
+    },
+    {
+        "code": "te",
+        "name": "Telugu",
+        "is_enabled": true
+    },
+    {
+        "code": "th",
+        "name": "Thai",
+        "is_enabled": true
+    },
+    {
+        "code": "tl",
+        "name": "Tagalog",
+        "is_enabled": true
+    },
+    {
+        "code": "tr",
+        "name": "Turkish",
+        "is_enabled": true
+    },
+    {
+        "code": "ug",
+        "name": "Uyghur",
+        "is_enabled": true
+    },
+    {
+        "code": "uk",
+        "name": "Ukrainian",
+        "is_enabled": true
+    },
+    {
+        "code": "ur",
+        "name": "Urdu",
+        "is_enabled": true
+    },
+    {
+        "code": "uz",
+        "name": "Uzbek",
+        "is_enabled": true
+    },
+    {
+        "code": "vi",
+        "name": "Vietnamese",
+        "is_enabled": true
+    },
+    {
+        "code": "xh",
+        "name": "Xhosa",
+        "is_enabled": true
+    },
+    {
+        "code": "yi",
+        "name": "Yiddish",
+        "is_enabled": true
+    },
+    {
+        "code": "zh",
+        "name": "Chinese",
+        "is_enabled": true
+    },
+    {
+        "code": "zu",
+        "name": "Zulu",
+        "is_enabled": true
+    }
+]

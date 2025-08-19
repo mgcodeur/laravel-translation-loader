@@ -23,6 +23,9 @@ abstract class TranslationMigration
     protected function add(string $locale, string $key, ?string $value): void
     {
         $languageId = $this->findLanguageId($locale);
+        if (! $languageId) {
+            return;
+        }
 
         Translation::updateOrCreate(
             ['language_id' => $languageId, 'key' => $key],
@@ -36,7 +39,7 @@ abstract class TranslationMigration
     protected function update(string $locale, string $key, ?string $value): void
     {
         $languageId = $this->findLanguageId($locale);
-        if ($languageId === null) {
+        if (! $languageId) {
             return;
         }
 
@@ -56,7 +59,7 @@ abstract class TranslationMigration
     protected function delete(string $locale, string $key): void
     {
         $languageId = $this->findLanguageId($locale);
-        if ($languageId === null) {
+        if (! $languageId) {
             return;
         }
 
