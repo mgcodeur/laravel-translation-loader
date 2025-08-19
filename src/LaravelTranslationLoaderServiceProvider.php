@@ -1,8 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mgcodeur\LaravelTranslationLoader;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
+use Mgcodeur\LaravelTranslationLoader\Commands\LaravelTranslationLoaderCommand;
+use Mgcodeur\LaravelTranslationLoader\Commands\MakeTranslationCommand;
+use Mgcodeur\LaravelTranslationLoader\Commands\TranslationsMigrateCommand;
+use Mgcodeur\LaravelTranslationLoader\Commands\TranslationsRollbackCommand;
 use Mgcodeur\LaravelTranslationLoader\Translations\DatabaseTranslationLoader;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -17,6 +23,12 @@ class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider imp
             ->hasMigrations([
                 'create_languages_table',
                 'create_translations_table',
+            ])
+            ->hasCommands([
+                LaravelTranslationLoaderCommand::class,
+                MakeTranslationCommand::class,
+                TranslationsMigrateCommand::class,
+                TranslationsRollbackCommand::class,
             ]);
 
         $this->registerLoader();

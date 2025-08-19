@@ -7,136 +7,207 @@ namespace Mgcodeur\LaravelTranslationLoader\Translations;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Translation\FileLoader;
-use Mgcodeur\LaravelTranslationLoader\Models\Language;
 
 final class DatabaseTranslationLoader implements Loader
 {
     private FileLoader $fileLoader;
 
-    private const CACHE_PREFIX = 'laravel_translation_loader_language_';
+    private const CACHE_PREFIX = 'ltl_translations_list_';
+
+    /**
+     * @var array<string, array<string, string|null>> Runtime cache: locale => [key => value|null]
+     */
+    private static array $runtimeCache = [];
 
     public function __construct(Filesystem $filesystem, string $path)
     {
         $this->fileLoader = new FileLoader($filesystem, $path);
     }
 
+    /**
+     * @param  string  $locale
+     * @param  string  $group
+     * @param  string|null  $namespace
+     * @return array<string, string|null>
+     */
     public function load($locale, $group, $namespace = null): array
     {
         if ($group !== '*') {
+            /** @var array<string, string|null> */
             return $this->fileLoader->load($locale, $group, $namespace);
         }
 
-        $translations = $this->getTranslationsFromDb($locale);
-        $fallbackLocale = config('app.fallback_locale');
+        $translations = $this->getTranslationsFromDb((string) $locale);
 
-        if (! $fallbackLocale) {
+        $missingKeys = $this->getEmptyTranslationKeys($translations);
+        if ($missingKeys === []) {
             return $translations;
         }
 
-        if (empty($translations)) {
-            foreach (
-                [
-                    $this->getTranslationsFromDb($fallbackLocale),
-                    $this->fileLoader->load($fallbackLocale, '*', $namespace),
-                ] as $fallbackSource
-            ) {
-                $translations = $this->fillMissingTranslations($translations, $fallbackSource);
+        /** @var string|null $fallbackLocale */
+        $fallbackLocale = app()->getFallbackLocale();
+
+        if ($fallbackLocale !== null && $fallbackLocale !== $locale) {
+            $fallbackDb = $this->getTranslationsByKeys($missingKeys, $fallbackLocale);
+            $this->fillFromSource($translations, $fallbackDb, $missingKeys);
+
+            if ($missingKeys === []) {
+                return $translations;
             }
-
-            return $translations;
         }
 
-        $hasEmptyTranslations = array_filter(
-            $translations,
-            fn ($translationValue) => self::isEmptyValue($translationValue)
-        );
-
-        if ($hasEmptyTranslations) {
-            // TODO: ne charger que ce que l'on a vraiment besoin
-            $translations = $this->fillMissingTranslations($translations, $this->getTranslationsFromDb($fallbackLocale));
-            $translations = $this->fillMissingTranslations($translations, $this->fileLoader->load($fallbackLocale, '*', $namespace));
-        }
+        $fallbackFile = $this->getTranslationsFromFile($missingKeys, (string) ($fallbackLocale ?? $locale), $namespace);
+        $this->fillFromSource($translations, $fallbackFile, $missingKeys);
 
         return $translations;
     }
 
+    /** @param string $namespace @param string $hint */
     public function addNamespace($namespace, $hint): void
     {
-        $this->fileLoader->addNamespace($namespace, $hint);
+        $this->fileLoader->addNamespace((string) $namespace, (string) $hint);
     }
 
+    /** @param string $path */
     public function addJsonPath($path): void
     {
-        $this->fileLoader->addJsonPath($path);
+        $this->fileLoader->addJsonPath((string) $path);
     }
 
+    /**
+     * @return array<string, string> namespace => hint
+     */
     public function namespaces(): array
     {
         return $this->fileLoader->namespaces();
     }
 
+    /**
+     * @return array<string, string|null> key => value|null
+     */
     private function getTranslationsFromDb(string $locale): array
     {
-        return Cache::rememberForever(self::CACHE_PREFIX.$locale, function () use ($locale) {
-            $language = Language::where('code', $locale)
-                ->where('is_enabled', true)
-                ->first();
+        if (isset(self::$runtimeCache[$locale])) {
+            return self::$runtimeCache[$locale];
+        }
 
-            if (! $language) {
-                return [];
+        /** @var array<string, string|null> */
+        return self::$runtimeCache[$locale] = Cache::rememberForever(
+            self::CACHE_PREFIX.$locale,
+            function () use ($locale): array {
+                /** @var object{id:int}|null $language */
+                $language = DB::table('languages')
+                    ->where('code', $locale)
+                    ->where('is_enabled', true)
+                    ->first();
+
+                if ($language === null) {
+                    return [];
+                }
+
+                /** @var array<string, string|null> */
+                return DB::table('translations')
+                    ->where('language_id', $language->id)
+                    ->pluck('value', 'key')
+                    ->toArray();
             }
-
-            return $language->translations()
-                ->pluck('value', 'key')
-                ->toArray();
-        });
+        );
     }
 
-    private function fillMissingTranslations(array $currentTranslations, array $fallbackTranslations): array
+    /**
+     * @param  list<string>  $keys
+     * @return array<string, string|null>
+     */
+    private function getTranslationsByKeys(array $keys, string $locale): array
     {
-        $validFallbackTranslations = array_filter(
-            $fallbackTranslations,
-            fn ($translationValue) => self::isFilledValue($translationValue)
-        );
-
-        if (empty($validFallbackTranslations)) {
-            return $currentTranslations;
+        if ($keys === []) {
+            return [];
         }
 
-        $emptyKeys = array_keys(array_filter(
-            $currentTranslations,
-            fn ($translationValue) => self::isEmptyValue($translationValue)
-        ));
+        /** @var object{id:int}|null $language */
+        $language = DB::table('languages')
+            ->where('code', $locale)
+            ->where('is_enabled', true)
+            ->first();
 
-        $missingKeys = array_diff(
-            array_keys($validFallbackTranslations),
-            array_keys($currentTranslations)
-        );
-
-        $keysNeedingFallback = $emptyKeys === []
-            ? $missingKeys
-            : array_unique(array_merge($emptyKeys, $missingKeys));
-
-        if (empty($keysNeedingFallback)) {
-            return $currentTranslations;
+        if ($language === null) {
+            return [];
         }
 
-        $fallbackSubset = array_intersect_key(
-            $validFallbackTranslations,
-            array_flip($keysNeedingFallback)
-        );
-
-        return array_replace($currentTranslations, $fallbackSubset);
+        /** @var array<string, string|null> */
+        return DB::table('translations')
+            ->where('language_id', $language->id)
+            ->whereIn('key', $keys)
+            ->pluck('value', 'key')
+            ->toArray();
     }
 
-    private static function isEmptyValue($translationValue): bool
+    /**
+     * @param  list<string>  $keys
+     * @return array<string, string|null>
+     */
+    private function getTranslationsFromFile(array $keys, string $locale, ?string $namespace): array
     {
-        return $translationValue === null || trim((string) $translationValue) === '';
+        if ($keys === []) {
+            return [];
+        }
+
+        /** @var array<string, string|null> $all */
+        $all = $this->fileLoader->load($locale, '*', $namespace);
+
+        $result = [];
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $all)) {
+                /** @var string|null $value */
+                $value = $all[$key];
+                $result[$key] = $value;
+            }
+        }
+
+        /** @var array<string, string|null> */
+        return $result;
     }
 
-    private static function isFilledValue($translationValue): bool
+    /**
+     * @param  array<string, string|null>  $translations
+     * @return list<string>
+     */
+    private function getEmptyTranslationKeys(array $translations): array
     {
-        return ! self::isEmptyValue($translationValue);
+        $emptyKeys = [];
+
+        foreach ($translations as $translationKey => $translationValue) {
+            if ($translationValue === '' || $translationValue === null) {
+                $emptyKeys[] = (string) $translationKey;
+            }
+        }
+
+        return $emptyKeys;
+    }
+
+    /**
+     * @param  array<string, string|null>  $translations  (by ref)
+     * @param  array<string, string|null>  $source
+     * @param  list<string>  $missingKeys  (by ref)
+     */
+    private function fillFromSource(array &$translations, array $source, array &$missingKeys): void
+    {
+        if ($missingKeys === [] || $source === []) {
+            return;
+        }
+
+        $stillMissing = array_flip($missingKeys);
+
+        foreach ($source as $key => $value) {
+            if (isset($stillMissing[$key]) && $value !== '' && $value !== null) {
+                $translations[$key] = $value;
+                unset($stillMissing[$key]);
+            }
+        }
+
+        /** @var list<string> */
+        $missingKeys = array_keys($stillMissing);
     }
 }

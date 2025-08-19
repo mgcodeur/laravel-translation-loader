@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+use Mgcodeur\LaravelTranslationLoader\Translations\TranslationMigration;
+
+return new class extends TranslationMigration
+{
+    public function up(): void
+    {
+        // $this->add('en', 'welcome.title', 'Welcome');
+    }
+
+    public function down(): void
+    {
+        // $this->delete('en', 'welcome.title');
+    }
+};
