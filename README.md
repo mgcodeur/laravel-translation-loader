@@ -1,43 +1,66 @@
-# Store your translations in the database
+# Laravel Translation Loader
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mgcodeur/laravel-translation-loader.svg?style=flat-square)](https://packagist.org/packages/mgcodeur/laravel-translation-loader)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/mgcodeur/laravel-translation-loader/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mgcodeur/laravel-translation-loader/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/mgcodeur/laravel-translation-loader/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/mgcodeur/laravel-translation-loader/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/mgcodeur/laravel-translation-loader.svg?style=flat-square)](https://packagist.org/packages/mgcodeur/laravel-translation-loader)
+[![Tests](https://img.shields.io/github/actions/workflow/status/mgcodeur/laravel-translation-loader/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mgcodeur/laravel-translation-loader/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Code Style](https://img.shields.io/github/actions/workflow/status/mgcodeur/laravel-translation-loader/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/mgcodeur/laravel-translation-loader/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Downloads](https://img.shields.io/packagist/dt/mgcodeur/laravel-translation-loader.svg?style=flat-square)](https://packagist.org/packages/mgcodeur/laravel-translation-loader)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
+This package lets you manage Laravel translations from the database using simple, versioned migration files.
 
 ## Installation
 
-You can install the package via composer:
-
 ```bash
 composer require mgcodeur/laravel-translation-loader
+php artisan migrate
+```
+
+Create a Translation Migration
+
+```bash
+php artisan make:translation welcome
+```
+
+This creates a file in `database/translations/`
+
+```php
+<?php
+
+use Mgcodeur\LaravelTranslationLoader\Translations\TranslationMigration;
+
+return new class extends TranslationMigration
+{
+    public function up(): void
+    {
+        $this->add('en', 'welcome.title', 'Welcome');
+        $this->add('fr', 'welcome.title', 'Bienvenue');
+    }
+
+    public function down(): void
+    {
+        $this->delete('en', 'welcome.title');
+        $this->delete('fr', 'welcome.title');
+    }
+};
+```
+
+**Run / Rollback**
+
+Run all pending migrations:
+
+```bash
+php artisan translation:migrate
+```
+
+Rollback the last migration:
+
+```bash
+php artisan translation:rollback
 ```
 
 ## Usage
 
-## Testing
+You can use the translations in your Laravel application as you would with any other translation file.
 
-```bash
-composer test
+```php
+__('welcome.title');
 ```
-
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Credits
-
-- [mgcodeur](https://github.com/mgcodeur)
-- [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
