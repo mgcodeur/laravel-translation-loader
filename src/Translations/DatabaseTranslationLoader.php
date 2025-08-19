@@ -210,4 +210,18 @@ final class DatabaseTranslationLoader implements Loader
         /** @var list<string> */
         $missingKeys = array_keys($stillMissing);
     }
+
+    /**
+     * Clear both Laravel cache store and runtime cache for a given locale.
+     */
+    public static function clearLocaleCache(string $locale): void
+    {
+        Cache::forget(self::cacheKey($locale));
+        unset(self::$runtimeCache[$locale]);
+    }
+
+    public static function cacheKey(string $locale): string
+    {
+        return self::CACHE_PREFIX.$locale;
+    }
 }

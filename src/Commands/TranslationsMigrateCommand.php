@@ -32,7 +32,7 @@ final class TranslationsMigrateCommand extends Command
             /** @var \SplFileInfo $file */
             $migration = require $file->getRealPath();
             if (is_object($migration) && method_exists($migration, 'up')) {
-                $this->line('Applying: '.$file->getFilename());
+                $this->line('Migrating translation: '.$file->getFilename());
                 $migration->up();
             }
         }

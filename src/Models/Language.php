@@ -4,9 +4,12 @@ namespace Mgcodeur\LaravelTranslationLoader\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Mgcodeur\LaravelTranslationLoader\Traits\FlushesCache;
 
 class Language extends Model
 {
+    use FlushesCache;
+
     protected $fillable = [
         'name',
         'code',
@@ -14,7 +17,7 @@ class Language extends Model
         'is_enabled',
     ];
 
-    protected $cast = [
+    protected $casts = [
         'is_enabled' => 'boolean',
     ];
 

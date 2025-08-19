@@ -6,6 +6,7 @@ namespace Mgcodeur\LaravelTranslationLoader\Translations;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Mgcodeur\LaravelTranslationLoader\Models\Translation;
 
 abstract class TranslationMigration
 {
@@ -21,9 +22,9 @@ abstract class TranslationMigration
      */
     protected function add(string $locale, string $key, ?string $value): void
     {
-        $languageId = $this->resolveLanguageId($locale);
+        $languageId = $this->findLanguageId($locale);
 
-        DB::table('translations')->updateOrInsert(
+        Translation::updateOrCreate(
             ['language_id' => $languageId, 'key' => $key],
             ['value' => $value]
         );
@@ -39,10 +40,14 @@ abstract class TranslationMigration
             return;
         }
 
-        DB::table('translations')
+        $translation = Translation::query()
             ->where('language_id', $languageId)
-            ->where('key', $key)
-            ->update(['value' => $value]);
+            ->where('key', $key)->first();
+
+        if ($translation) {
+            $translation->value = $value;
+            $translation->save();
+        }
     }
 
     /**
@@ -55,10 +60,13 @@ abstract class TranslationMigration
             return;
         }
 
-        DB::table('translations')
+        $translation = Translation::query()
             ->where('language_id', $languageId)
-            ->where('key', $key)
-            ->delete();
+            ->where('key', $key)->first();
+
+        if ($translation) {
+            $translation->delete();
+        }
     }
 
     /**
@@ -96,21 +104,5 @@ abstract class TranslationMigration
             ->first(['id']);
 
         return $row->id ?? null;
-    }
-
-    protected function resolveLanguageId(string $locale): int
-    {
-        $id = $this->findLanguageId($locale);
-        if ($id !== null) {
-            return $id;
-        }
-
-        return (int) DB::table('languages')->insertGetId([
-            'code' => $locale,
-            'name' => strtoupper($locale),
-            'is_enabled' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
     }
 }
