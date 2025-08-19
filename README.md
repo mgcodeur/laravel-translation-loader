@@ -76,3 +76,11 @@ You can use the translations in your Laravel application as you would with any o
 ```php
 __('welcome.title');
 ```
+
+## Bonus
+
+You can check translation migration status with:
+
+```bash
+php artisan translation:status
+```

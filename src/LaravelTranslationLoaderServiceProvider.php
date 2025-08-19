@@ -9,6 +9,7 @@ use Mgcodeur\LaravelTranslationLoader\Commands\LaravelTranslationLoaderCommand;
 use Mgcodeur\LaravelTranslationLoader\Commands\MakeTranslationCommand;
 use Mgcodeur\LaravelTranslationLoader\Commands\TranslationsMigrateCommand;
 use Mgcodeur\LaravelTranslationLoader\Commands\TranslationsRollbackCommand;
+use Mgcodeur\LaravelTranslationLoader\Commands\TranslationsStatusCommand;
 use Mgcodeur\LaravelTranslationLoader\Translations\DatabaseTranslationLoader;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -30,6 +31,7 @@ class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider imp
                 MakeTranslationCommand::class,
                 TranslationsMigrateCommand::class,
                 TranslationsRollbackCommand::class,
+                TranslationsStatusCommand::class,
             ]);
 
         $this->registerLoader();
