@@ -71,10 +71,13 @@ class GenerateTranslationsCommand extends Command
 
     private function undot(array $dotArray): array
     {
+        /** @var array<string, mixed> $result */
         $result = [];
 
         foreach ($dotArray as $key => $value) {
             $segments = explode('.', $key);
+
+            /** @var array<string, mixed> $temp */
             $temp = &$result;
 
             foreach ($segments as $segment) {
