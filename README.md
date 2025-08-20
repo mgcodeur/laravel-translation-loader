@@ -87,6 +87,14 @@ You can check translation migration status with:
 php artisan translation:status
 ```
 
+You can also generate all translation files with
+
+```bash
+php artisan translation:generate
+```
+
+**Note:** This will generate translation files for all languages in the `lang` directory. You can change the output directory in the configuration file.
+
 ## 🛠️ Troubleshooting & Support
 
 If you encounter any issues or have questions, feel free to open an issue on [GitHub](https://github.com/mgcodeur/laravel-translation-loader/issues). Contributions, suggestions, and feedback are always welcome!
