@@ -29,10 +29,10 @@ php artisan laravel-translation-loader:install
 
 This generates:
 
-- `config/translation-loader.php` (customizable settings)
-- `database/migrations/create_translations_table.php` (schema for translation tables)
-- `database/migrations/create_languages_table.php` (schema for language management)
-- `database/migrations/create_translation_migrations_table.php` (tracks applied translation migrations)
+- `config/translation-loader.php` (package settings)
+- `database/migrations/create_translations_table.php`
+- `database/migrations/create_languages_table.php`
+- `database/migrations/create_translation_migrations_table.php` (table for translations migrations)
 
 ### 3. Run Migrations
 
