@@ -78,7 +78,7 @@ class GenerateTranslationsCommand extends Command
             $temp = &$result;
 
             foreach ($segments as $segment) {
-                if (! isset($temp[$segment]) || ! is_array($temp[$segment])) {
+                if (! array_key_exists($segment, $temp) || ! is_array($temp[$segment])) {
                     $temp[$segment] = [];
                 }
                 $temp = &$temp[$segment];
