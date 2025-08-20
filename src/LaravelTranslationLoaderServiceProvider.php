@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Mgcodeur\LaravelTranslationLoader;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
+use Mgcodeur\LaravelTranslationLoader\Commands\GenerateTranslationsCommand;
 use Mgcodeur\LaravelTranslationLoader\Commands\LaravelTranslationLoaderCommand;
 use Mgcodeur\LaravelTranslationLoader\Commands\MakeTranslationCommand;
 use Mgcodeur\LaravelTranslationLoader\Commands\TranslationsMigrateCommand;
@@ -32,6 +33,7 @@ class LaravelTranslationLoaderServiceProvider extends PackageServiceProvider imp
                 TranslationsMigrateCommand::class,
                 TranslationsRollbackCommand::class,
                 TranslationsStatusCommand::class,
+                GenerateTranslationsCommand::class,
             ]);
 
         $this->registerLoader();

@@ -19,9 +19,9 @@ class LaravelTranslationLoaderCommand extends Command
             '--tag' => 'translation-loader-migrations',
         ]);
 
-        // Artisan::call('vendor:publish', [
-        //     '--tag' => 'translation-loader-config',
-        // ]);
+        Artisan::call('vendor:publish', [
+            '--tag' => 'translation-loader-config',
+        ]);
 
         $this->info('Laravel Translation Loader has been successfully installed.');
 
