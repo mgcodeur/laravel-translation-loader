@@ -196,7 +196,7 @@ If a translation is missing, Laravel will fall back to the default language defi
 A: Yes! The package works alongside file-based translations.
 
 **Q: How does caching work?**  
-A: Translations are cached for performance. Automatically cleared when migrations are applied or rolled back.
+A: Translations are cached. Automatically cleared when migrations are applied or rolled back.
 
 ## 📜 License
 
@@ -209,7 +209,5 @@ If this package saves you time:
 - ⭐ Star the [GitHub repo](https://github.com/mgcodeur/laravel-translation-loader)
 - 📢 Share it with your network
 - 💸 Sponsor development via [GitHub Sponsors](https://github.com/sponsors/mgcodeur)
-
-**Built for Laravel developers, by Laravel developers.** Let’s make multilingual apps simple! 🚀
 
 For more help, check [GitHub Issues](https://github.com/mgcodeur/laravel-translation-loader/issues) or open a new issue.
