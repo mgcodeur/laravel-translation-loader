@@ -13,7 +13,7 @@ Get up and running in three steps.
 
 ### 1. Install the Package
 
-Add the package to your Laravel project:
+Install the package to your Laravel project:
 
 ```bash
 composer require mgcodeur/laravel-translation-loader
@@ -204,12 +204,12 @@ Licensed under the [MIT License](./LICENSE.md).
 
 ## ❤️ Support the Project
 
-If this package saves you time, show some love:
+If this package saves you time:
 
 - ⭐ Star the [GitHub repo](https://github.com/mgcodeur/laravel-translation-loader)
 - 📢 Share it with your network
 - 💸 Sponsor development via [GitHub Sponsors](https://github.com/sponsors/mgcodeur)
 
-**Built for Laravel developers, by Laravel developers.** Let’s make multilingual apps effortless! 🚀
+**Built for Laravel developers, by Laravel developers.** Let’s make multilingual apps simple! 🚀
 
 For more help, check [GitHub Issues](https://github.com/mgcodeur/laravel-translation-loader/issues) or open a new issue.
