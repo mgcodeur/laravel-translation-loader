@@ -50,7 +50,7 @@ Generate a migration to define translations:
 php artisan make:translation welcome
 ```
 
-This creates a file in `database/translations/`:
+👉 This creates a file in `database/translations/`:
 
 ```php
 <?php
@@ -79,19 +79,19 @@ return new class extends TranslationMigration
 
 ### Apply or Revert Migrations
 
-Run all pending translation migrations:
+**Run all pending translation migrations:**
 
 ```bash
 php artisan translation:migrate
 ```
 
-Rollback the last migration:
+**Rollback the last migration:**
 
 ```bash
 php artisan translation:rollback
 ```
 
-## 🎯 Using Translations
+## 🎯 Usage
 
 Access translations as you would with standard Laravel language files:
 
@@ -102,7 +102,7 @@ echo __('welcome.title'); // Outputs: "Welcome to Our App" (if en is active)
 
 ## 📦 Bonus Features
 
-### Check Migration Status
+### 1. Check Migration Status
 
 View the status of translation migrations:
 
@@ -121,9 +121,9 @@ php artisan translation:status
 +-------------------------+----------+
 ```
 
-### Generate Language Files
+### 2. Generate Language Files
 
-Export database translations to Laravel’s `lang` directory:
+👉 Export database translations to Laravel’s `lang` directory:
 
 ```bash
 php artisan translation:generate
@@ -139,7 +139,7 @@ lang/
 └── ...
 ```
 
-**Tip**: Customize the output path in `config/translation-loader.php`.
+💡 Customize the output path in `config/translation-loader.php`.
 
 ## ⚙️ Configuration
 
@@ -147,7 +147,7 @@ Customize settings in `config/translation-loader.php`
 
 ### ✨ Extra Helpers
 
-`addMany`
+#### - `addMany`
 
 Add multiple keys at once.
 
@@ -178,7 +178,7 @@ $this->addMany([
 ]);
 ```
 
-`update`
+#### - `update`
 
 Update existing translations.
 
