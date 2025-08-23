@@ -11,15 +11,17 @@ class GenerateTranslationsCommand extends Command
 {
     protected $signature = 'translation:generate {--locale=* : Filter by locale (optional)}';
 
-    protected $description = 'Génère les fichiers de traduction JSON pour un SPA à partir de la base de données';
+    protected $description = 'Generate JSON translation files for an SPA from the database';
 
     public function handle(): int
     {
         $locales = $this->option('locale') ?: $this->getEnabledLocales();
-        $outputPath = Config::get('translation-loader.build.output_path');
+        $outputPaths = (array) Config::get('translation-loader.build.output_path');
 
-        if (! File::exists($outputPath)) {
-            File::makeDirectory($outputPath, 0755, true);
+        foreach ($outputPaths as $outputPath) {
+            if (! File::exists($outputPath)) {
+                File::makeDirectory($outputPath, 0755, true);
+            }
         }
 
         foreach ($locales as $locale) {
@@ -31,10 +33,11 @@ class GenerateTranslationsCommand extends Command
                 continue;
             }
 
-            $file = "{$outputPath}/{$locale}.json";
-            File::put($file, $this->encodeJson($this->undot($translations), 2));
-
-            $this->info("✅ Fichier généré: {$file}");
+            foreach ($outputPaths as $outputPath) {
+                $file = "{$outputPath}/{$locale}.json";
+                File::put($file, $this->encodeJson($this->undot($translations), 2));
+                $this->info("✅ Fichier généré: {$file}");
+            }
         }
 
         return self::SUCCESS;

@@ -71,6 +71,8 @@ return new class extends TranslationMigration
         $this->delete('en', 'welcome.title');
         $this->delete('fr', 'welcome.title');
         $this->delete('es', 'welcome.title');
+
+        // or you can just do: $this->deleteAll('welcome.title');
     }
 };
 ```
@@ -143,13 +145,50 @@ lang/
 
 Customize settings in `config/translation-loader.php`
 
+### ✨ Extra Helpers
+
+`addMany`
+
+Add multiple keys at once.
+
+```php
+$this->addMany('en', [
+    'email' => 'Email',
+    'password' => 'Password',
+]);
+
+$this->addMany('fr', [
+    'email' => 'Email',
+    'password' => 'Mot de passe',
+]);
+```
+
+or
+
+```php
+$this->addMany([
+    'en' => [
+        'login' => 'Login',
+        'logout' => 'Logout',
+    ],
+    'fr' => [
+        'login' => 'Se connecter',
+        'logout' => 'Se déconnecter',
+    ],
+]);
+```
+
+`update`
+
+Update existing translations.
+
+```php
+$this->update('en', 'welcome.title', 'Welcome to Our Awesome App');
+```
+
 ### Fallbacks
 
 If a translation is missing, Laravel will fall back to the default language defined in your `config/app.php`.
-
-## ⚠️ Troubleshooting
-
-For more help, check [GitHub Issues](https://github.com/mgcodeur/laravel-translation-loader/issues) or open a new issue.
 
 ## ❓ FAQ
 
@@ -172,3 +211,5 @@ If this package saves you time, show some love:
 - 💸 Sponsor development via [GitHub Sponsors](https://github.com/sponsors/mgcodeur)
 
 **Built for Laravel developers, by Laravel developers.** Let’s make multilingual apps effortless! 🚀
+
+For more help, check [GitHub Issues](https://github.com/mgcodeur/laravel-translation-loader/issues) or open a new issue.

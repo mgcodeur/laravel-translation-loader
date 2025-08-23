@@ -17,9 +17,6 @@ abstract class TranslationMigration
 
     abstract public function down(): void;
 
-    /**
-     * Insert if missing. If the language code doesn't exist, it will be created (enabled=true).
-     */
     protected function add(string $locale, string $key, ?string $value): void
     {
         $languageId = $this->findLanguageId($locale);
@@ -33,9 +30,36 @@ abstract class TranslationMigration
         );
     }
 
-    /**
-     * Update only if the translation row exists; no-op otherwise.
-     */
+    protected function addMany(string|array $localeOrPayload, ?array $keyValues = null): void
+    {
+        DB::transaction(function () use ($localeOrPayload, $keyValues) {
+            if (is_string($localeOrPayload)) {
+                $this->addManyForLocale($localeOrPayload, $keyValues ?? []);
+
+                return;
+            }
+
+            foreach ($localeOrPayload as $locale => $pairs) {
+                $this->addManyForLocale((string) $locale, (array) $pairs);
+            }
+        });
+    }
+
+    protected function addManyForLocale(string $locale, array $keyValues): void
+    {
+        $languageId = $this->findLanguageId($locale);
+        if (! $languageId) {
+            return;
+        }
+
+        foreach ($keyValues as $key => $value) {
+            Translation::updateOrCreate(
+                ['language_id' => $languageId, 'key' => $key],
+                ['value' => $value]
+            );
+        }
+    }
+
     protected function update(string $locale, string $key, ?string $value): void
     {
         $languageId = $this->findLanguageId($locale);
@@ -53,9 +77,6 @@ abstract class TranslationMigration
         }
     }
 
-    /**
-     * Delete translation row (if present).
-     */
     protected function delete(string $locale, string $key): void
     {
         $languageId = $this->findLanguageId($locale);
@@ -72,15 +93,13 @@ abstract class TranslationMigration
         }
     }
 
-    /**
-     * Utility: run multiple ops atomically.
-     *
-     * $ops = [
-     *   ['add', 'en', 'welcome', 'Welcome'],
-     *   ['update', 'fr', 'welcome', 'Bienvenue'],
-     *   ['delete', 'en', 'old.key'],
-     * ]
-     */
+    protected function deleteAll(string $key): void
+    {
+        Translation::query()
+            ->where('key', $key)
+            ->delete();
+    }
+
     protected function transaction(array $ops, bool $stopOnError = true): void
     {
         DB::transaction(function () use ($ops, $stopOnError) {
