@@ -93,10 +93,10 @@ abstract class TranslationMigration
         }
     }
 
-    protected function deleteAll(string $key): void
+    protected function deleteAll(string ...$keys): void
     {
         Translation::query()
-            ->where('key', $key)
+            ->whereIn('key', $keys)
             ->delete();
     }
 
