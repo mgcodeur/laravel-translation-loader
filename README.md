@@ -73,6 +73,9 @@ return new class extends TranslationMigration
         $this->delete('es', 'welcome.title');
 
         // or you can just do: $this->deleteAll('welcome.title');
+        //
+        // Since v1.0.5, deleteAll can accept multiple keys at once:
+        // $this->deleteAll('key1', 'key2', 'key3');
     }
 };
 ```
