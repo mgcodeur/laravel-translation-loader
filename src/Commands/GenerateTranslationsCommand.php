@@ -28,7 +28,7 @@ class GenerateTranslationsCommand extends Command
             $translations = $this->getTranslations($locale);
 
             if (empty($translations)) {
-                $this->warn("Aucune traduction pour [$locale], fichier ignoré.");
+                $this->warn("No translations for [$locale], file skipped.");
 
                 continue;
             }
@@ -36,7 +36,7 @@ class GenerateTranslationsCommand extends Command
             foreach ($outputPaths as $outputPath) {
                 $file = "{$outputPath}/{$locale}.json";
                 File::put($file, $this->encodeJson($this->undot($translations), 2));
-                $this->info("✅ Fichier généré: {$file}");
+                $this->info("✅ File generated: {$file}");
             }
         }
 
