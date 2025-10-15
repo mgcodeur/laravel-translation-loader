@@ -6,21 +6,46 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class GenerateTranslationsCommand extends Command
 {
-    protected $signature = 'translation:generate {--locale=* : Filter by locale (optional)}';
+    protected $signature = 'translation:generate {--locale=* : Filter by locale (optional)} {--output-path=* : Output path(s) for the generated files (optional, defaults to config value)}';
 
     protected $description = 'Generate JSON translation files for an SPA from the database';
 
     public function handle(): int
     {
         $locales = $this->option('locale') ?: $this->getEnabledLocales();
-        $outputPaths = (array) Config::get('translation-loader.build.output_path');
+
+        $outputPathsOption = $this->option('output-path');
+        $outputDisk = Config::get('translation-loader.build.output_disk', 'public');
+
+        if ($outputPathsOption) {
+            $outputPaths = is_array($outputPathsOption) ? $outputPathsOption : [$outputPathsOption];
+            $usePublicPath = true;
+        } else {
+            $outputPaths = (array) Config::get('translation-loader.build.output_path');
+            $usePublicPath = false;
+        }
+
+        $disk = Storage::disk($outputDisk);
 
         foreach ($outputPaths as $outputPath) {
-            if (! File::exists($outputPath)) {
-                File::makeDirectory($outputPath, 0755, true);
+            $resolvedPath = $usePublicPath
+                ? public_path(trim($outputPath, '/'))
+                : trim($outputPath, '/');
+
+            if ($usePublicPath) {
+                if (! File::exists($resolvedPath)) {
+                    File::makeDirectory($resolvedPath, 0755, true);
+                    $this->info("📁 Directory created: {$resolvedPath}");
+                }
+            } else {
+                if (! $disk->exists($resolvedPath)) {
+                    $disk->makeDirectory($resolvedPath);
+                    $this->info("📁 Directory created on disk [{$outputDisk}]: {$resolvedPath}");
+                }
             }
         }
 
@@ -28,14 +53,26 @@ class GenerateTranslationsCommand extends Command
             $translations = $this->getTranslations($locale);
 
             if (empty($translations)) {
-                $this->warn("No translations for [$locale], file skipped.");
+                $this->warn("⚠️  No translations found for [$locale], file skipped.");
 
                 continue;
             }
 
             foreach ($outputPaths as $outputPath) {
-                $file = "{$outputPath}/{$locale}.json";
-                File::put($file, $this->encodeJson($this->undot($translations), 2));
+                $resolvedPath = $usePublicPath
+                    ? public_path(trim($outputPath, '/'))
+                    : trim($outputPath, '/');
+
+                $file = rtrim($resolvedPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR."{$locale}.json";
+                $json = $this->encodeJson($this->undot($translations), 2);
+
+                if ($usePublicPath) {
+                    File::put($file, $json);
+                } else {
+                    $disk->put($file, $json);
+                    $file = $disk->path($file);
+                }
+
                 $this->info("✅ File generated: {$file}");
             }
         }
