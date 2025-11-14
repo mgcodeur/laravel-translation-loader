@@ -3,49 +3,32 @@
 namespace Mgcodeur\LaravelTranslationLoader\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class GenerateTranslationsCommand extends Command
 {
-    protected $signature = 'translation:generate {--locale=* : Filter by locale (optional)} {--output-path=* : Output path(s) for the generated files (optional, defaults to config value)}';
-
+    protected $signature = 'translation:generate {--locale=*} {--output-path=*}';
     protected $description = 'Generate JSON translation files for an SPA from the database';
 
     public function handle(): int
     {
         $locales = $this->option('locale') ?: $this->getEnabledLocales();
-
         $outputPathsOption = $this->option('output-path');
-        $outputDisk = Config::get('translation-loader.build.output_disk', 'public');
 
-        if ($outputPathsOption) {
-            $outputPaths = is_array($outputPathsOption) ? $outputPathsOption : [$outputPathsOption];
-            $usePublicPath = true;
-        } else {
-            $outputPaths = (array) Config::get('translation-loader.build.output_path');
-            $usePublicPath = false;
-        }
-
-        $disk = Storage::disk($outputDisk);
+        $outputPaths = $outputPathsOption
+            ? (is_array($outputPathsOption) ? $outputPathsOption : [$outputPathsOption])
+            : (array) config('translation-loader.build.output_path', 'translations');
 
         foreach ($outputPaths as $outputPath) {
-            $resolvedPath = $usePublicPath
-                ? public_path(trim($outputPath, '/'))
-                : trim($outputPath, '/');
+            $clean = trim($outputPath);
 
-            if ($usePublicPath) {
-                if (! File::exists($resolvedPath)) {
-                    File::makeDirectory($resolvedPath, 0755, true);
-                    $this->info("📁 Directory created: {$resolvedPath}");
-                }
-            } else {
-                if (! $disk->exists($resolvedPath)) {
-                    $disk->makeDirectory($resolvedPath);
-                    $this->info("📁 Directory created on disk [{$outputDisk}]: {$resolvedPath}");
-                }
+            $resolvedPath = str_starts_with($clean, '/')
+                ? $clean
+                : public_path($clean);
+
+            if (! File::exists($resolvedPath)) {
+                File::makeDirectory($resolvedPath, 0755, true);
             }
         }
 
@@ -53,27 +36,22 @@ class GenerateTranslationsCommand extends Command
             $translations = $this->getTranslations($locale);
 
             if (empty($translations)) {
-                $this->warn("⚠️  No translations found for [$locale], file skipped.");
-
                 continue;
             }
 
             foreach ($outputPaths as $outputPath) {
-                $resolvedPath = $usePublicPath
-                    ? public_path(trim($outputPath, '/'))
-                    : trim($outputPath, '/');
+                $clean = trim($outputPath);
 
-                $file = rtrim($resolvedPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR."{$locale}.json";
+                $resolvedPath = str_starts_with($clean, '/')
+                    ? $clean
+                    : public_path($clean);
+
+                $file = $resolvedPath . DIRECTORY_SEPARATOR . "{$locale}.json";
                 $json = $this->encodeJson($this->undot($translations), 2);
 
-                if ($usePublicPath) {
-                    File::put($file, $json);
-                } else {
-                    $disk->put($file, $json);
-                    $file = $disk->path($file);
-                }
+                File::put($file, $json);
 
-                $this->info("✅ File generated: {$file}");
+                $this->info("Generated translation file: {$file}");
             }
         }
 
@@ -88,9 +66,6 @@ class GenerateTranslationsCommand extends Command
             ->toArray();
     }
 
-    /**
-     * @return array<string, string>
-     */
     private function getTranslations(string $locale): array
     {
         $language = DB::table('languages')
@@ -111,17 +86,14 @@ class GenerateTranslationsCommand extends Command
 
     private function undot(array $dotArray): array
     {
-        /** @var array<string, mixed> $result */
         $result = [];
 
         foreach ($dotArray as $key => $value) {
             $segments = explode('.', $key);
-
-            /** @var array<string, mixed> $temp */
             $temp = &$result;
 
             foreach ($segments as $segment) {
-                if (! array_key_exists($segment, $temp) || ! is_array($temp[$segment])) {
+                if (! isset($temp[$segment]) || ! is_array($temp[$segment])) {
                     $temp[$segment] = [];
                 }
                 $temp = &$temp[$segment];
@@ -139,7 +111,6 @@ class GenerateTranslationsCommand extends Command
 
         return preg_replace_callback('/^( +)/m', function ($m) use ($spaces) {
             $count = (int) floor(strlen($m[1]) / 4);
-
             return str_repeat(' ', $count * $spaces);
         }, $json);
     }
