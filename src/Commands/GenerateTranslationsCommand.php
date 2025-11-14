@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\File;
 class GenerateTranslationsCommand extends Command
 {
     protected $signature = 'translation:generate {--locale=*} {--output-path=*}';
+
     protected $description = 'Generate JSON translation files for an SPA from the database';
 
     public function handle(): int
@@ -46,7 +47,7 @@ class GenerateTranslationsCommand extends Command
                     ? $clean
                     : public_path($clean);
 
-                $file = $resolvedPath . DIRECTORY_SEPARATOR . "{$locale}.json";
+                $file = $resolvedPath.DIRECTORY_SEPARATOR."{$locale}.json";
                 $json = $this->encodeJson($this->undot($translations), 2);
 
                 File::put($file, $json);
@@ -111,6 +112,7 @@ class GenerateTranslationsCommand extends Command
 
         return preg_replace_callback('/^( +)/m', function ($m) use ($spaces) {
             $count = (int) floor(strlen($m[1]) / 4);
+
             return str_repeat(' ', $count * $spaces);
         }, $json);
     }
