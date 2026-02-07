@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('key', 191);
             $table->text('value');
             $table->foreignId('language_id')->constrained('languages')->onDelete('cascade');
+            $table->string('group')->nullable();
             $table->timestamps();
 
             $table->unique(['key', 'language_id']);

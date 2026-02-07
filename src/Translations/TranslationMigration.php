@@ -17,15 +17,23 @@ abstract class TranslationMigration
 
     abstract public function down(): void;
 
+    protected array $groupStack = [];
+
     protected function add(string $locale, string $key, ?string $value): void
     {
+        [$group, $key] = $this->resolveGroupAndKey($key);
+
         $languageId = $this->findLanguageId($locale);
         if (! $languageId) {
             return;
         }
 
         Translation::updateOrCreate(
-            ['language_id' => $languageId, 'key' => $key],
+            [
+                'language_id' => $languageId,
+                'group' => $group,
+                'key' => $key,
+            ],
             ['value' => $value]
         );
     }
@@ -53,8 +61,14 @@ abstract class TranslationMigration
         }
 
         foreach ($keyValues as $key => $value) {
+            [$group, $resolvedKey] = $this->resolveGroupAndKey((string) $key);
+
             Translation::updateOrCreate(
-                ['language_id' => $languageId, 'key' => $key],
+                [
+                    'language_id' => $languageId,
+                    'group' => $group,
+                    'key' => $resolvedKey,
+                ],
                 ['value' => $value]
             );
         }
@@ -62,6 +76,8 @@ abstract class TranslationMigration
 
     protected function update(string $locale, string $key, ?string $value): void
     {
+        [$group, $key] = $this->resolveGroupAndKey($key);
+
         $languageId = $this->findLanguageId($locale);
         if (! $languageId) {
             return;
@@ -69,7 +85,9 @@ abstract class TranslationMigration
 
         $translation = Translation::query()
             ->where('language_id', $languageId)
-            ->where('key', $key)->first();
+            ->where('group', $group)
+            ->where('key', $key)
+            ->first();
 
         if ($translation) {
             $translation->value = $value;
@@ -98,6 +116,74 @@ abstract class TranslationMigration
         Translation::query()
             ->whereIn('key', $keys)
             ->delete();
+    }
+
+    protected function group(string $prefix, callable $callback): void
+    {
+        $prefix = $this->normalizePrefix($prefix);
+
+        if ($prefix === '') {
+            $callback();
+
+            return;
+        }
+
+        $this->groupStack[] = $prefix;
+
+        try {
+            $callback();
+        } finally {
+            array_pop($this->groupStack);
+        }
+    }
+
+    protected function addIn(string $prefix, string $locale, string $key, ?string $value): void
+    {
+        $prefix = $this->normalizePrefix($prefix);
+
+        $this->group($prefix, function () use ($locale, $key, $value) {
+            $this->add($locale, $key, $value);
+        });
+    }
+
+    protected function addManyIn(string $prefix, string|array $localeOrPayload, ?array $keyValues = null): void
+    {
+        $prefix = $this->normalizePrefix($prefix);
+
+        $this->group($prefix, function () use ($localeOrPayload, $keyValues) {
+            $this->addMany($localeOrPayload, $keyValues);
+        });
+    }
+
+    protected function resolveGroupAndKey(string $key): array
+    {
+        $resolvedKey = $this->normalizeKey($key);
+
+        if ($this->groupStack === []) {
+            return [null, $resolvedKey];
+        }
+
+        $group = implode('.', array_filter($this->groupStack, fn ($p) => $p !== ''));
+
+        return [$group !== '' ? $group : null, $resolvedKey];
+    }
+
+    protected function normalizePrefix(string $prefix): string
+    {
+        $prefix = trim($prefix);
+        $prefix = trim($prefix, '.');
+        $prefix = preg_replace('/\.+/', '.', $prefix) ?? $prefix;
+
+        return $prefix;
+    }
+
+    protected function normalizeKey(string $key): string
+    {
+        $key = trim($key);
+        $key = trim($key, '.');
+        $key = preg_replace('/\.+/', '.', $key) ?? $key;
+
+        return $key;
     }
 
     protected function transaction(array $ops, bool $stopOnError = true): void

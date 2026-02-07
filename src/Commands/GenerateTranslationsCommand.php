@@ -34,25 +34,39 @@ class GenerateTranslationsCommand extends Command
         }
 
         foreach ($locales as $locale) {
-            $translations = $this->getTranslations($locale);
+            $groupedTranslations = $this->getTranslationsByGroup($locale);
 
-            if (empty($translations)) {
+            if (empty($groupedTranslations)) {
                 continue;
             }
 
             foreach ($outputPaths as $outputPath) {
                 $clean = trim($outputPath);
 
-                $resolvedPath = str_starts_with($clean, '/')
+                $basePath = str_starts_with($clean, '/')
                     ? $clean
                     : public_path($clean);
 
-                $file = $resolvedPath.DIRECTORY_SEPARATOR."{$locale}.json";
-                $json = $this->encodeJson($this->undot($translations), 2);
+                foreach ($groupedTranslations as $group => $translations) {
+                    if (empty($translations)) {
+                        continue;
+                    }
 
-                File::put($file, $json);
+                    $targetDir = $group !== null && $group !== ''
+                        ? $basePath.DIRECTORY_SEPARATOR.$group
+                        : $basePath;
 
-                $this->info("Generated translation file: {$file}");
+                    if (! File::exists($targetDir)) {
+                        File::makeDirectory($targetDir, 0755, true);
+                    }
+
+                    $file = $targetDir.DIRECTORY_SEPARATOR."{$locale}.json";
+                    $json = $this->encodeJson($this->undot($translations), 2);
+
+                    File::put($file, $json);
+
+                    $this->info("Generated translation file: {$file}");
+                }
             }
         }
 
@@ -67,7 +81,7 @@ class GenerateTranslationsCommand extends Command
             ->toArray();
     }
 
-    private function getTranslations(string $locale): array
+    private function getTranslationsByGroup(string $locale): array
     {
         $language = DB::table('languages')
             ->where('code', $locale)
@@ -78,11 +92,20 @@ class GenerateTranslationsCommand extends Command
             return [];
         }
 
-        return DB::table('translations')
+        $rows = DB::table('translations')
             ->where('language_id', $language->id)
             ->whereNotNull('value')
-            ->pluck('value', 'key')
-            ->toArray();
+            ->get(['group', 'key', 'value']);
+
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $group = $row->group;
+            $grouped[$group] ??= [];
+            $grouped[$group][$row->key] = $row->value;
+        }
+
+        return $grouped;
     }
 
     private function undot(array $dotArray): array

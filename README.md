@@ -179,6 +179,22 @@ $this->addMany([
 ]);
 ```
 
+#### 🧩 Translation Groups
+
+Groups let you namespace keys without repeating prefixes.
+
+```php
+$this->group('welcome', function () {
+    $this->add('en', 'title', 'Welcome');
+    $this->add('fr', 'title', 'Bienvenue');
+
+    $this->addMany('en', [
+        'subtitle' => 'Enjoy your stay',
+        'cta' => 'Get started',
+    ]);
+});
+```
+
 #### - `update`
 
 Update existing translations.

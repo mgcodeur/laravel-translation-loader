@@ -21,6 +21,7 @@ class Translation extends Model
         'key',
         'value',
         'language_id',
+        'group',
     ];
 
     public function language(): BelongsTo
