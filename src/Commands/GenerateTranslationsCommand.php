@@ -53,14 +53,14 @@ class GenerateTranslationsCommand extends Command
                     }
 
                     $targetDir = $group !== null && $group !== ''
-                        ? $basePath . DIRECTORY_SEPARATOR . $group
+                        ? $basePath.DIRECTORY_SEPARATOR.$group
                         : $basePath;
 
                     if (! File::exists($targetDir)) {
                         File::makeDirectory($targetDir, 0755, true);
                     }
 
-                    $file = $targetDir . DIRECTORY_SEPARATOR . "{$locale}.json";
+                    $file = $targetDir.DIRECTORY_SEPARATOR."{$locale}.json";
                     $json = $this->encodeJson($this->undot($translations), 2);
 
                     File::put($file, $json);
