@@ -24,7 +24,7 @@ class GenerateTranslationsCommand extends Command
         foreach ($outputPaths as $outputPath) {
             $clean = trim($outputPath);
 
-            $resolvedPath = str_starts_with($clean, '/')
+            $resolvedPath = $this->isAbsolutePath($clean)
                 ? $clean
                 : public_path($clean);
 
@@ -43,7 +43,7 @@ class GenerateTranslationsCommand extends Command
             foreach ($outputPaths as $outputPath) {
                 $clean = trim($outputPath);
 
-                $basePath = str_starts_with($clean, '/')
+                $basePath = $this->isAbsolutePath($clean)
                     ? $clean
                     : public_path($clean);
 
@@ -53,14 +53,14 @@ class GenerateTranslationsCommand extends Command
                     }
 
                     $targetDir = $group !== null && $group !== ''
-                        ? $basePath.DIRECTORY_SEPARATOR.$group
+                        ? $basePath . DIRECTORY_SEPARATOR . $group
                         : $basePath;
 
                     if (! File::exists($targetDir)) {
                         File::makeDirectory($targetDir, 0755, true);
                     }
 
-                    $file = $targetDir.DIRECTORY_SEPARATOR."{$locale}.json";
+                    $file = $targetDir . DIRECTORY_SEPARATOR . "{$locale}.json";
                     $json = $this->encodeJson($this->undot($translations), 2);
 
                     File::put($file, $json);
@@ -138,5 +138,11 @@ class GenerateTranslationsCommand extends Command
 
             return str_repeat(' ', $count * $spaces);
         }, $json);
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return str_starts_with($path, '/')
+            || preg_match('/^[a-zA-Z]:[\\\\\/]/', $path) === 1;
     }
 }
